@@ -2,14 +2,14 @@
 const nodemailer = require('nodemailer');
 const mysql = require('mysql');
 const fs = require('fs');
-const PASSWORD = '****'; //163邮箱授权码
+const PASSWORD = '******'; //163邮箱授权码
 
 const Con = mysql.createPool({
     connectionLimit: 100,
     host: '127.0.0.1',
     user: '******',
     password: '******',
-    database: '******'
+    database: '******',
 });
 
 
@@ -61,7 +61,7 @@ async function main() {
 
     // send mail with defined transport object
     let info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <lab5088@163.com>',
+        from: '"508Lab 👻" <lab5088@163.com>',
         to: emails,
         subject: '508工作室本周资源推送', // Subject line
         text: '新的一周，你是否已经准备好前行。', // plain text body
@@ -76,10 +76,16 @@ async function main() {
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 /**
- * 从来数据库中获取邮箱
+ * 获取邮箱列表
+ * @param {*} arg  today: 获取当天录入的邮箱 
  */
-async function getUser() {
-    const data = await query(`select email from subscribe`);
+async function getUser(arg) {
+    let data = null;
+    if (arg === 'today') {
+        data = await query(`select * from subscribe where to_days(time) = to_days(now());`);
+    } else {
+        data = await query(`select email from subscribe`);
+    }
     let str = '';
     data.map((e, i) => {
         if (data.length - 1 == i) {
