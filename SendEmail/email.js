@@ -39,14 +39,14 @@ let query = function (sql) {
         console.log(err);
     });
 }
-let errs = [];
+let errsEmails = [];
 /**
  * 此脚本使用的163邮箱
  */
 async function main() {
     await getUser().catch((e) => {
     });
-    await fs.writeFileSync('err.json', JSON.stringify(errs));  //记录错误邮箱日志
+    await fs.writeFileSync('err.json', JSON.stringify(errsEmails));  //记录错误邮箱日志
 }
 
 async function sendEmail(email) {
@@ -66,11 +66,10 @@ async function sendEmail(email) {
     let info = await transporter.sendMail({
         from: '"508Lab 👻" <lab5088@163.com>',
         to: email,
-        subject: '508工作室本周资源推送', 
+        subject: '508工作室本周资源推送',
         text: '新的一周，你是否已经准备好前行。',
         html: await fs.readFileSync('index.html').toString()
     }).catch((err) => {
-        errs.push(email)
         console.log(err)
     });
     console.log('Message sent: %s', info.messageId);
@@ -94,7 +93,9 @@ async function getUser(arg) {
     while (tag && data.length) {
         tag = false;
         let ele = data.pop();
-        await sendEmail(ele.email);
+        await sendEmail(ele.email).catch(() => {
+            errsEmails.push(ele.email);
+        });
         tag = true;
     }
 }
