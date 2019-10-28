@@ -89,15 +89,18 @@ async function getUser(arg) {
     } else {
         data = await query(`select email from subscribe`);
     }
-    let tag = true;
-    while (tag && data.length) {
-        tag = false;
+    data = data.reverse();
+    let thread = setInterval(async () => {
+        if (!data.length) {
+            clearInterval(thread);
+            return;
+        }
         let ele = data.pop();
+        console.log(data.length);
         await sendEmail(ele.email).catch(() => {
             errsEmails.push(ele.email);
         });
-        tag = true;
-    }
+    }, 5000);
 }
 
 
